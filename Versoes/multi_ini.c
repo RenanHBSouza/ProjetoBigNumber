@@ -37,7 +37,7 @@ BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que r
         }
         num->digitos = realloc(num->digitos, num->tamanho*sizeof(int));     //Realoca com o tamanho novo
     }
-    free(valor);        //Libera a memoria da string valor para garantir mais memoria
+    //free(valor);        //Libera a memoria da string valor para garantir mais memoria
     return num;
 }
 
@@ -248,14 +248,14 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                             empresta(num2,j+1);
                         }
                         aux = num2->digitos[j]-num1->digitos[j];
-                        num2->digitos[j] = aux;
-                        num2->sinal='-';
+                        num1->digitos[j] = aux;
+                        num1->sinal='-';
                     }
-                    while(num2->digitos[num2->tamanho-1]==0){      //Caso o primeiro digito do valor (final do vetor) tenha sido zerado, remove pois é digito inutil
-                        num2->tamanho-=1;
-                        num2->digitos = realloc(num2->digitos, num2->tamanho*sizeof(int));
+                    while(num1->digitos[num1->tamanho-1]==0){      //Caso o primeiro digito do valor (final do vetor) tenha sido zerado, remove pois é digito inutil
+                        num1->tamanho-=1;
+                        num1->digitos = realloc(num1->digitos, num1->tamanho*sizeof(int));
                     }
-                    Imprimir_bignumber(num2,num2->tamanho);
+                    Imprimir_bignumber(num1,num1->tamanho);
                 }
                 else if(i==0){
                     i = -1;
@@ -278,6 +278,17 @@ void Destruir_bignumber(BigNumber num){     //Função que libera os digitos e e
     return;
 }
 
+void pot10(BigNumber num, int k){
+    num->tamanho+=k;
+    num->digitos = realloc(num->digitos, num->tamanho*sizeof(int));
+    int i;
+    for(i=num->tamanho/2;i>=0;i--){
+        num->digitos[(i+num->tamanho/2)-1] = num->digitos[i-1];
+        num->digitos[i-1] = 0;
+    }
+    return;
+}
+
 void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     size_t m;
     // Se um dos numeros for zero, o resultado é zero
@@ -295,44 +306,99 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         resp->digitos[0] = 0;
         return;
     }
+    if(max(num1->tamanho,num2->tamanho)==1){
+        resp->digitos[0] = (num1->digitos[0]*num2->digitos[0])%10;
+        resp->digitos[1] = (num1->digitos[0]*num2->digitos[0])/10;
+        return;
+    }
 
     // Verifica sinal dos numeros
-    resp->sinal = (num1->sinal == num2->sinal) ? '+' : '-';
+    Imprimir_bignumber(num1,num1->tamanho);
+    Imprimir_bignumber(num2,num2->tamanho);
+    resp->sinal = (num1->sinal == num2->sinal) ? '+' : '-';  
 
-    // Determina a metade do BigN
+    // Determina a metade do BigN e coloca 0 para deixar numeros pares de mesmo tamanho
     if (num1->tamanho > num2->tamanho){
+        if(num1->tamanho%2!=0){
+            num1->tamanho +=1;
+            num1->digitos = realloc(num1->digitos, num1->tamanho*sizeof(int));
+            num1->digitos[num1->tamanho-1] = 0;
+            num2->digitos = realloc(num2->digitos, num1->tamanho*sizeof(int));
+            for(int i=num2->tamanho;i<num1->tamanho;i++){
+                num2->digitos[i] = 0;
+            }
+        }
+        else{
+            num2->digitos = realloc(num2->digitos, num1->tamanho*sizeof(int));
+            for(int i=num2->tamanho;i<num1->tamanho;i++){
+                num2->digitos[i] = 0;
+            }           
+        }
+        num2->tamanho = num1->tamanho;
         m = num1->tamanho/2;
     }
     else{
+        if(num2->tamanho%2!=0){
+            num2->tamanho +=1;
+            num2->digitos = realloc(num2->digitos, num2->tamanho*sizeof(int));
+            num2->digitos[num2->tamanho-1] = 0;
+            num1->digitos = realloc(num1->digitos, num2->tamanho*sizeof(int));
+            for(int i=num1->tamanho;i<num2->tamanho;i++){
+                num1->digitos[i] = 0;
+            }
+        }
+        else{
+            num1->digitos = realloc(num1->digitos, num2->tamanho*sizeof(int));
+            for(int i=num1->tamanho;i<num2->tamanho;i++){
+                num1->digitos[i] = 0;
+            }           
+        }
+        num1->tamanho = num2->tamanho;
         m = num2->tamanho/2;
     }
 
     // Quebra os BigN em duas partes cada
     BigNumber a = malloc(sizeof(struct n));
     a->tamanho = m;
-    a->digitos = num1->digitos;
+    a->digitos = calloc(a->tamanho, sizeof(int));
+    for(int i=0;i<m;i++){
+        a->digitos[i] = num1->digitos[m+i];
+    }
     a->sinal = num1->sinal;
 
     BigNumber b = malloc(sizeof(struct n));
-    b->tamanho = num1->tamanho - m;
-    b->digitos = num1->digitos + m;
+    b->tamanho = m;
+    b->digitos = calloc(b->tamanho, sizeof(int));
+    for(int i=0;i<m;i++){
+        b->digitos[i] = num1->digitos[i];
+    }
     b->sinal = num1->sinal;
 
     BigNumber c = malloc(sizeof(struct n));
     c->tamanho = m;
-    c->digitos = num2->digitos;
+    c->digitos = calloc(c->tamanho, sizeof(int));
+    for(int i=0;i<m;i++){
+        c->digitos[i] = num2->digitos[m+i];
+    }
     c->sinal = num2->sinal;
 
     BigNumber d = malloc(sizeof(struct n));
-    d->tamanho = num2->tamanho - m;
-    d->digitos = num2->digitos + m;
+    d->tamanho = m;
+    d->digitos = calloc(d->tamanho, sizeof(int));
+    for(int i=0;i<m;i++){
+        d->digitos[i] = num2->digitos[i];
+    }
     d->sinal = num2->sinal;
 
     // Calcula os produtos recursivamente
-    BigNumber ac = Construcao_bignumber(ac, "0");
+    BigNumber ac = malloc(sizeof(struct n));
+    ac->tamanho = a->tamanho+c->tamanho;
+    ac->digitos = calloc(ac->tamanho, sizeof(int));
     Karatsuba_bignumber(a, c, ac);
 
-    BigNumber bd = Construcao_bignumber(bd, "0");
+    BigNumber bd = malloc(sizeof(struct n));
+    bd->tamanho = b->tamanho+d->tamanho;
+    bd->digitos = calloc(bd->tamanho, sizeof(int));
     Karatsuba_bignumber(b, d, bd);
 
     // Calcula a + b e c + d
@@ -341,24 +407,33 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     Soma_bignumber(c, d);
 
     // Calcula (a + b) * (c + d)
-    BigNumber abcd = Construcao_bignumber(abcd, "0");
+    BigNumber abcd = malloc(sizeof(struct n));
+    abcd->tamanho = a->tamanho+c->tamanho;
+    abcd->digitos = calloc(abcd->tamanho,sizeof(int));
     Karatsuba_bignumber(a, c, abcd);
 
+
     // Calcula ac + bd - (a + b) * (c + d)
-    Subtracao_bignumber(ac, bd);
-    Subtracao_bignumber(ac, abcd);
-    Soma_bignumber(ac, bd);
+    //Subtracao_bignumber(ac, bd);
+    //Subtracao_bignumber(ac, abcd);
+    //Soma_bignumber(ac, bd);
 
     // Salva os resultados para o objeto 'resp'
-    resp->tamanho = ac->tamanho;
+    resp->tamanho = num1->tamanho+num2->tamanho;
     resp->digitos = realloc(resp->digitos, resp->tamanho * sizeof(int));
-    memcpy(resp->digitos, ac->digitos, resp->tamanho * sizeof(int));
+    Subtracao_bignumber(abcd,ac);
+    Subtracao_bignumber(abcd,bd);
+    pot10(abcd,m);
+    pot10(ac,2*m);
+    Soma_bignumber(ac,abcd);
+    Soma_bignumber(ac,bd);
 
     // Copia o resultado para o num1
     num1->tamanho = resp->tamanho;
     num1->sinal = resp->sinal;
     num1->digitos = realloc(num1->digitos, num1->tamanho * sizeof(int));
-    memcpy(num1->digitos, resp->digitos, num1->tamanho * sizeof(int));
+    memcpy(num1->digitos, ac->digitos, num1->tamanho * sizeof(int));
+    Imprimir_bignumber(num1, num1->tamanho);
 
     // Libera a memoria
     Destruir_bignumber(a);
@@ -371,21 +446,29 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
 }
 
 int main() {
-    BigNumber numero1, numero2;
+    BigNumber numero1, numero2, resp;
     int i=30;
     char sinalCalc;
     char* entrada;
+    char x[1] = {'0'};
     while(1){
         entrada = pegar_numero();
         numero1 = Construcao_bignumber(numero1, entrada);
         entrada = pegar_numero();
         numero2 = Construcao_bignumber(numero2, entrada);
+        resp = Construcao_bignumber(resp, x);
         scanf("%c", &sinalCalc);
         if(sinalCalc=='+'){
             Soma_bignumber(numero1,numero2);
         }
         else if(sinalCalc=='-'){
             Subtracao_bignumber(numero1,numero2);
+        }
+        else if(sinalCalc=='*'){
+            Karatsuba_bignumber(numero1,numero2,resp);
+        }
+        else{
+            printf("Valor inválido!");
         }
         Destruir_bignumber(numero1);
         Destruir_bignumber(numero2);
