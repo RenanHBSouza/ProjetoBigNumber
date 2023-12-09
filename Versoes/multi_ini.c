@@ -15,11 +15,19 @@ typedef struct n{
 BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que retorna um big number construído
     int i;
     num = malloc(sizeof(struct n));     //Aloca memória para a estrutura
+    if(num == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     num->tamanho = strlen(valor);       //Pega o tamanho da string valor para definir o tamanho de digitos
     if(valor[0] == '-'){        //Se o 1º valor for '-' armazena esse sinal na estrutura 
         num->sinal = '-';
         num->tamanho -= 1;      //Remove 1 do tamanho que será utilizado para os digitos (digito do -)
         num->digitos = malloc(num->tamanho*sizeof(int));    //Aloca memória para o vetor de inteiros que receberá cada digito
+        if(num->digitos == NULL){
+            printf("Nao ha memoria suficiente!\n");
+            exit(1);
+        }
         for(i=0;i<num->tamanho;i++){    //Converte cada caractere para int e insere em digitos
             num->digitos[i] = (int)valor[(num->tamanho)-i]-48;      //-48 para converter da tabela ASCII
         }
@@ -27,6 +35,10 @@ BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que r
     else{
         num->sinal = '+';       //Mantem os digitos e adiciona '+' quando não recebe '-'
         num->digitos = malloc(num->tamanho*sizeof(int));
+        if(num->digitos == NULL){
+            printf("Nao ha memoria suficiente!\n");
+            exit(1);
+        }
         for(i=0;i<num->tamanho;i++){        //Adiciona os valores da string para os digitos
             num->digitos[i] = (int)valor[(num->tamanho-1)-i]-48;
         }
@@ -36,6 +48,10 @@ BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que r
             num->tamanho -= 1;
         }
         num->digitos = realloc(num->digitos, num->tamanho*sizeof(int));     //Realoca com o tamanho novo
+        if(num->digitos == NULL){
+            printf("Nao ha memoria suficiente!\n");
+            exit(1);
+        }
     }
     //free(valor);        //Libera a memoria da string valor para garantir mais memoria
     return num;
@@ -43,11 +59,19 @@ BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que r
 
 char* pegar_numero(){       //Função para receber string do usuário
     char* temp = malloc(10000*sizeof(char));        //Aloca com um tamanho padrão
+    if(temp == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     if(scanf("%s", temp)==EOF){     //Termina o codigo quando não tem mais entrada da instancia
         exit(1);
     }          
     getchar();      
     temp = realloc(temp, strlen(temp)+1);       //Realoca a partir do tamanho realmente necessário
+    if(temp == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     return temp;
 }
 
@@ -61,6 +85,10 @@ void Imprimir_bignumber(BigNumber numero, int tam){     //Função para imprimir
         numero->tamanho-=1;
         tam-=1;
         numero->digitos = realloc(numero->digitos, numero->tamanho*sizeof(int));
+        if(numero->digitos == NULL){
+            printf("Nao ha memoria suficiente!\n");
+            exit(1);
+    }
     }
     if(tam==0){         //Quando a variavel de tamanho chegar em 0 termina a recursão
         printf("\n");
@@ -128,6 +156,10 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
                     else{       //Caso seja o ultimo digito dos vetores realoca mais 1 espaço para receber o novo valor
                         num1->tamanho+=1;
                         num1->digitos = realloc(num1->digitos, num1->tamanho*sizeof(int));
+                        if(num1->digitos == NULL){
+                            printf("Nao ha memoria suficiente!\n");
+                            exit(1);
+                        }
                         num1->digitos[j] = aux-10;
                         num1->digitos[j+1] = 1;
                     }
@@ -152,47 +184,20 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
 
 void Soma_interna(BigNumber num1, BigNumber num2){
     int i,j,aux;
-    if(num1->tamanho>num2->tamanho){       //Verifica qual numero tem maior tamanho, pois é ele quem é alterado
-        for(i=0;i<num2->tamanho;i++){       //Enquanto ainda tiver digitos no numero menor vai somando os valores em aux
-            aux=num1->digitos[i]+num2->digitos[i];
-            if(aux>=10){        //Caso a soma ultprasse 9, subtrai 10 de aux e soma 1 no proximo valor
-                num1->digitos[i] = aux-10;
-                num1->digitos[i+1] += 1;
-            }
-            else{
-                num1->digitos[i] = aux;         //Passa aux para o digito atual
-            }
-        }
-        if(num1->digitos[num2->tamanho]>=10 && num2->tamanho!= num1->tamanho-1){
-            passa_1(num1,num2->tamanho);
-        }
-    } 
-    else if(num2->tamanho>num1->tamanho){     //Mesma logica para casa o outro numero seja maior
-        for(j=0;j<num1->tamanho;j++){           
-            aux=num2->digitos[j]+num1->digitos[j];
-            if(aux>=10){
-                num2->digitos[j] = aux-10;
-                num2->digitos[j+1] += 1;
-            }
-            else{
-                num2->digitos[j] = aux;
-            }
-        }
-        if(num2->digitos[num1->tamanho]>=10 && num1->tamanho!= num2->tamanho-1){
-            passa_1(num2,num1->tamanho);
-        }
-    }
-    else{       //Caso os tamanhos sejam iguais
-        for(j=0;j<num2->tamanho;j++){           
-            aux=num1->digitos[j]+num2->digitos[j];
-            if(aux>=10){        //Se a soma for maior que 9, caso não seja o ultimo digitos dos vetores subtrai 10 do atual e soma 1 no proximo digito
-                if(j!=num2->tamanho-1){
-                    num1->digitos[j] = aux-10;
-                    num1->digitos[j+1] += 1;
+    for(j=0;j<num2->tamanho;j++){        //Loop para percorrer o numero
+        aux=num1->digitos[j]+num2->digitos[j]; // Soma os digitos correspondentes de num1 e num2 alem do valor acumulado do resto, se houver
+           if(aux>=10){        //Se a soma for maior que 9, caso não seja o ultimo digitos dos vetores subtrai 10 do atual e soma 1 no proximo digito
+               if(j!=num2->tamanho-1){
+                   num1->digitos[j] = aux-10; //Atualiza o digito atual num1
+                   num1->digitos[j+1] += 1;
                 }
                 else{       //Caso seja o ultimo digito dos vetores realoca mais 1 espaço para receber o novo valor
-                    num1->tamanho+=1;
-                    num1->digitos = realloc(num1->digitos, num1->tamanho*sizeof(int));
+                   num1->tamanho+=1;
+                   num1->digitos = realloc(num1->digitos, num1->tamanho*sizeof(int));
+                   if(num1->digitos == NULL){
+                        printf("Nao ha memoria suficiente!\n");
+                        exit(1);
+                    }
                     num1->digitos[j] = aux-10;
                     num1->digitos[j+1] = 1;
                 }
@@ -200,9 +205,9 @@ void Soma_interna(BigNumber num1, BigNumber num2){
             else{
                 num1->digitos[j] = aux;
             }
-        }          
-    }
+    }          
 }
+
 
 void empresta(BigNumber num, int atual){        //Função para emprestar valor em contas de subtração
     int aux=atual, valor=9;     //Auxiliar recebe o valor inicial de atual que será alterado
@@ -304,6 +309,10 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                     i = -1;
                     num1->tamanho=1;
                     num1->digitos = realloc(num1->digitos, sizeof(int));
+                    if(num1->digitos == NULL){
+                        printf("Nao ha memoria suficiente!\n");
+                        exit(1);
+                    }
                     num1->digitos[0] = 0;
                     printf("%d\n",num1->digitos[0]);
                 }
@@ -318,79 +327,50 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
 
 void Subtracao_interna(BigNumber num1, BigNumber num2){
     int i, aux;
-    if(num1->tamanho>num2->tamanho){        //Verifica se num1>num2 para utilizar num1 como vetor a ser alterado
-        for(i=0;i<num2->tamanho;i++){       //Faz as subtrações digito a digito enquanto num2 tem caractere
-            aux = num1->digitos[i]-num2->digitos[i];
-            if(aux<0 && num1->digitos[i+1]!=0){     //Se o digito deu negativo e o proximo digito é diferente que 0 segue um emprestimo unico
-                num1->digitos[i+1]-=1;
-                num1->digitos[i]+=10;
-            }
-            else if(aux<0 && num1->digitos[i+1]==0){       //Caso o digito seja negativo e o proximo igual a 0, chama a função empresta
-                empresta(num1,i+1);
-            }
-            aux = num1->digitos[i]-num2->digitos[i];        
-            num1->digitos[i] = aux;       //Após os adendos passa o valor de aux para o digito que esta sendo calculado
-        }
-    }
-    else if(num2->tamanho>num1->tamanho){       //Caso num2 seja maior faz a mesma logica, porém altera o sinal devido a esse resultado ser negativo
-        for(i=0;i<num1->tamanho;i++){
-            aux = num2->digitos[i]-num1->digitos[i];
-            if(aux<0 && num2->digitos[i+1]!=0){
-                num2->digitos[i+1]-=1;
-                num2->digitos[i]+=10;
-            }
-            else if(aux<0 && num2->digitos[i+1]==0){
-                empresta(num2,i+1);
-            }
-            aux = num2->digitos[i]-num1->digitos[i];
-            num2->digitos[i] = aux;
-            num2->sinal='-';
-        }
-    }
-    else{
-        i = num1->tamanho-1;
-        while(i>=0){
-            if(num1->digitos[i]>num2->digitos[i]){
-                i = -1;
-                for(int j=0;j<num2->tamanho;j++){       //Faz as subtrações digito a digito enquanto num2 tem caractere
-                    aux = num1->digitos[j]-num2->digitos[j];
-                    if(aux<0 && num1->digitos[j+1]!=0){     //Se o digito deu negativo e o proximo digito é diferente que 0 segue um emprestimo unico
-                        num1->digitos[j+1]-=1;
-                        num1->digitos[j]+=10;
-                    }
-                    else if(aux<0 && num1->digitos[j+1]==0){       //Caso o digito seja negativo e o proximo igual a 0, chama a função empresta
-                        empresta(num1,j+1);
-                    }
-                    aux = num1->digitos[j]-num2->digitos[j];        
-                    num1->digitos[j] = aux;       //Após os adendos passa o valor de aux para o digito que esta sendo calculado
+    i = num1->tamanho-1;
+
+    while(i>=0){
+        if(num1->digitos[i]>num2->digitos[i]){
+            i = -1;
+            for(int j=0;j<num2->tamanho;j++){       //Faz as subtrações digito a digito enquanto num2 tem caractere
+                aux = num1->digitos[j]-num2->digitos[j];
+                if(aux<0 && num1->digitos[j+1]!=0){     //Se o digito deu negativo e o proximo digito é diferente que 0 segue um emprestimo unico
+                    num1->digitos[j+1]-=1;
+                    num1->digitos[j]+=10;
                 }
-            }
-            else if(num2->digitos[i]>num1->digitos[i]){
-                i=-1;
-                for(int j=0;j<num1->tamanho;j++){
-                    aux = num2->digitos[j]-num1->digitos[j];
-                    if(aux<0 && num2->digitos[j+1]!=0){
-                        num2->digitos[j+1]-=1;
-                        num2->digitos[j]+=10;
-                    }
-                    else if(aux<0 && num2->digitos[j+1]==0){
-                        empresta(num2,j+1);
-                    }
-                    aux = num2->digitos[j]-num1->digitos[j];
-                    num1->digitos[j] = aux;
-                    num1->sinal='-';
+                else if(aux<0 && num1->digitos[j+1]==0){       //Caso o digito seja negativo e o proximo igual a 0, chama a função empresta
+                    empresta(num1,j+1);
                 }
+                aux = num1->digitos[j]-num2->digitos[j];        
+                num1->digitos[j] = aux;       //Após os adendos passa o valor de aux para o digito que esta sendo calculado
             }
-            else if(i==0){
-                i = -1;
-                num1->digitos[0] = 0;
+        }
+        else if(num2->digitos[i]>num1->digitos[i]){     //Se o segundo digito for maior que o primeiro
+            i=-1;
+            for(int j=0;j<num1->tamanho;j++){
+                aux = num2->digitos[j]-num1->digitos[j];
+                if(aux<0 && num2->digitos[j+1]!=0){
+                    num2->digitos[j+1]-=1;
+                    num2->digitos[j]+=10;
+                }
+                else if(aux<0 && num2->digitos[j+1]==0){
+                    empresta(num2,j+1);
+                }
+                aux = num2->digitos[j]-num1->digitos[j];
+                num1->digitos[j] = aux;
+                num1->sinal='-';
             }
-            else{
-                i-=1;
-            }
+        }
+        if(i==0){
+            i = -1;
+            num1->digitos[0] = 0;
+        }
+        else{
+            i-=1;
         }
     }
 }
+
 
 void Destruir_bignumber(BigNumber num){     //Função que libera os digitos e em seguida a estrutura
     free(num->digitos);
@@ -400,6 +380,10 @@ void Destruir_bignumber(BigNumber num){     //Função que libera os digitos e e
 
 void pot10(BigNumber num, int k){
     num->digitos = realloc(num->digitos, (num->tamanho+k)*sizeof(int));
+    if(num->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     int i;
     for(i=num->tamanho-1;i>=0;i--){
         num->digitos[(i+k)] = num->digitos[i];
@@ -419,6 +403,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         resp->tamanho = 1;
         resp->sinal = '+';
         resp->digitos = realloc(resp->digitos, sizeof(int));
+        if(resp->digitos == NULL){
+            printf("Nao ha memoria suficiente!\n");
+            exit(1);
+        }
         resp->digitos[0] = 0;
         return;
     }
@@ -426,10 +414,14 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         resp->tamanho = 1;
         resp->sinal = '+';
         resp->digitos = realloc(resp->digitos, sizeof(int));
+        if(resp->digitos == NULL){
+            printf("Nao ha memoria suficiente!\n");
+            exit(1);
+        }
         resp->digitos[0] = 0;
         return;
     }*/
-    if(max(num1->tamanho,num2->tamanho)==1){
+    if(max(num1->tamanho,num2->tamanho)==1){                      //Verifica se ambos os numeros estao com no max 1 digito
         resp->digitos[0] = (num1->digitos[0]*num2->digitos[0])%10;
         resp->digitos[1] = (num1->digitos[0]*num2->digitos[0])/10;
         return;
@@ -442,36 +434,60 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
 
     // Determina a metade do BigN e coloca 0 para deixar numeros pares de mesmo tamanho
     if (num1->tamanho > num2->tamanho){
-        if(num1->tamanho%2!=0){
+        if(num1->tamanho%2!=0){              // Se o tamanho de num1 for ímpar, incrementa o tamanho e realoca a memória para num1 e num2
             num1->tamanho +=1;
             num1->digitos = realloc(num1->digitos, num1->tamanho*sizeof(int));
+            if(num1->digitos == NULL){
+                printf("Nao ha memoria suficiente!\n");
+                exit(1);
+            }
             num1->digitos[num1->tamanho-1] = 0;
             num2->digitos = realloc(num2->digitos, num1->tamanho*sizeof(int));
-            for(int i=num2->tamanho;i<num1->tamanho;i++){
+            if(num2->digitos == NULL){
+                printf("Nao ha memoria suficiente!\n");
+                exit(1);
+            }
+            for(int i=num2->tamanho;i<num1->tamanho;i++){       //Preenche os digitos adicionados com zero
                 num2->digitos[i] = 0;
             }
-        }                       // |2|  |2|0| i=1
-        else{
+        }
+        else{           // Se o tamanho de num1 for par, apenas realoca a memória para num2 e preenche os dígitos adicionados com zero
             num2->digitos = realloc(num2->digitos, num1->tamanho*sizeof(int));
+            if(num2->digitos == NULL){
+                printf("Nao ha memoria suficiente!\n");
+                exit(1);
+            }
             for(int i=num2->tamanho;i<num1->tamanho;i++){
                 num2->digitos[i] = 0;
             }           
         }
-        num2->tamanho = num1->tamanho;
+        num2->tamanho = num1->tamanho;          //Iguala o tamanho de num2 ao tamanho de num1
         m = num1->tamanho/2;
     }
     else{
         if(num2->tamanho%2!=0){
             num2->tamanho +=1;
             num2->digitos = realloc(num2->digitos, num2->tamanho*sizeof(int));
+            if(num2->digitos == NULL){
+                printf("Nao ha memoria suficiente!\n");
+                exit(1);
+            }
             num2->digitos[num2->tamanho-1] = 0;
             num1->digitos = realloc(num1->digitos, num2->tamanho*sizeof(int));
+            if(num1->digitos == NULL){
+                printf("Nao ha memoria suficiente!\n");
+                exit(1);
+            }
             for(int i=num1->tamanho;i<num2->tamanho;i++){
                 num1->digitos[i] = 0;
             }
         }
         else{
             num1->digitos = realloc(num1->digitos, num2->tamanho*sizeof(int));
+            if(num1->digitos == NULL){
+                printf("Nao ha memoria suficiente!\n");
+                exit(1);
+            }
             for(int i=num1->tamanho;i<num2->tamanho;i++){
                 num1->digitos[i] = 0;
             }           
@@ -479,58 +495,106 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         num1->tamanho = num2->tamanho;
         m = num2->tamanho/2;
     }
-    for(int i=0;i<num1->tamanho;i++){
+    for(int i=0;i<num1->tamanho;i++){       //debug
         printf("%d ",num1->digitos[i]);
     }
     printf("\n");
-    for(int i=0;i<num2->tamanho;i++){
+    for(int i=0;i<num2->tamanho;i++){           //debug
         printf("%d ",num2->digitos[i]);
     }
     printf("\n");
-    // Quebra os BigN em duas partes cada
-    BigNumber a = malloc(sizeof(struct n));
+                                                
+    BigNumber a = malloc(sizeof(struct n));             // Cria e inicializa os objetos BigNumber a, b, c, d para representar as partes divididas de num1 e num2
+    if(a == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     a->tamanho = m;
     a->digitos = calloc(a->tamanho, sizeof(int));
+    if(a->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     for(int i=0;i<m;i++){
         a->digitos[i] = num1->digitos[m+i];
     }
     a->sinal = num1->sinal;
 
-    BigNumber b = malloc(sizeof(struct n));
+    BigNumber b = malloc(sizeof(struct n));         // Repete o processo para os objetos b, c, d
+    if(b == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     b->tamanho = m;
     b->digitos = calloc(b->tamanho, sizeof(int));
+    if(b->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     for(int i=0;i<m;i++){
         b->digitos[i] = num1->digitos[i];
     }
     b->sinal = num1->sinal;
 
     BigNumber c = malloc(sizeof(struct n));
+    if(c == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     c->tamanho = m;
     c->digitos = calloc(c->tamanho, sizeof(int));
+    if(c->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     for(int i=0;i<m;i++){
         c->digitos[i] = num2->digitos[m+i];
     }
     c->sinal = num2->sinal;
 
     BigNumber d = malloc(sizeof(struct n));
+    if(d == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     d->tamanho = m;
     d->digitos = calloc(d->tamanho, sizeof(int));
+    if(d->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     for(int i=0;i<m;i++){
         d->digitos[i] = num2->digitos[i];
     }
     d->sinal = num2->sinal;
 
-    // Calcula os produtos recursivamente
+    // Calcula os produtos recursivamente usando algoritmo de Karatsuba
     BigNumber ac = malloc(sizeof(struct n));
+    if(ac == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     ac->tamanho = a->tamanho+c->tamanho;
     ac->sinal = '+';
     ac->digitos = calloc(ac->tamanho, sizeof(int));
+    if(ac->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     Karatsuba_bignumber(a, c, ac);
 
     BigNumber bd = malloc(sizeof(struct n));
+    if(bd == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     bd->tamanho = b->tamanho+d->tamanho;
     bd->sinal = '+';
     bd->digitos = calloc(bd->tamanho, sizeof(int));
+    if(bd == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     Karatsuba_bignumber(b, d, bd);
 
     // Calcula a + b e c + d
@@ -540,9 +604,17 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
 
     // Calcula (a + b) * (c + d)
     BigNumber abcd = malloc(sizeof(struct n));
+    if(abcd == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     abcd->tamanho = a->tamanho+c->tamanho;
     abcd->sinal = '+';
     abcd->digitos = calloc(abcd->tamanho,sizeof(int));
+    if(abcd->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     Karatsuba_bignumber(a, c, abcd);
 
 
@@ -554,6 +626,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     // Salva os resultados para o objeto 'resp'
     resp->tamanho = num1->tamanho+num2->tamanho;
     resp->digitos = realloc(resp->digitos, resp->tamanho * sizeof(int));
+    if(resp->digitos == NULL){
+        printf("Nao ha memoria suficiente!\n");
+        exit(1);
+    }
     for(int i=0;i<abcd->tamanho;i++){
         printf("%d ",abcd->digitos[i]);
     }
@@ -597,6 +673,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     //num1->tamanho = resp->tamanho;
     //num1->sinal = resp->sinal;
     //num1->digitos = realloc(num1->digitos, num1->tamanho * sizeof(int));
+    //if(num1->digitos == NULL){
+      //  printf("Nao ha memoria suficiente!\n");
+       // exit(1);
+  //  }
     memcpy(resp->digitos, ac->digitos, resp->tamanho * sizeof(int));
     Imprimir_bignumber(resp, resp->tamanho);
 
