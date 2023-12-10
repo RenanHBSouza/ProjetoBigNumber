@@ -1,10 +1,46 @@
 #include <stdio.h>
-#include <windows.h>
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#elif __linux__
+#include <sys/sysinfo.h>
+#endif
 
+long long obter_informacoes_memoria() {
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
 
+    if (GlobalMemoryStatusEx(&status)) {
+        //printf("Total RAM: %lld bytes\n", status.ullTotalPhys);
+        //printf("RAM livre: %lld bytes\n", status.ullAvailPhys);
+        return (long long)status.ullAvailPhys;
+    } else {
+        perror("Erro ao obter informações de memória no Windows");
+        return -1; // Ou outro valor de erro
+    }
+
+#elif __linux__
+    struct sysinfo info;
+
+    if (sysinfo(&info) != 0) {
+        perror("Erro ao obter informações do sistema");
+        return -1; // Ou outro valor de erro
+    }
+
+    // Convertendo bytes para megabytes (bytes)
+    //printf("Total RAM: %ld bytes\n", info.totalram);
+    //printf("RAM livre: %ld bytes\n", info.freeram);
+    return (long long)info.freeram;
+
+#else
+    printf("Sistema operacional não suportado\n");
+    return -1; // Ou outro valor de erro
+
+#endif
+}
 // Ponteiro de estrutura para representar um big number
 typedef struct n{
     int *digitos;
@@ -55,6 +91,10 @@ BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que r
     }
     free(valor);        //Libera a memoria da string valor para garantir mais memoria
     return num;
+}
+
+size_t max_len(size_t a, size_t b) {
+    return (a > b) ? a : b;
 }
 
 char* pegar_numero(){       //Função para receber string do usuário
@@ -431,7 +471,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         resp->sinal='+';
     } 
 
-    if(max(num1->tamanho,num2->tamanho)==1){                      //Verifica se ambos os numeros estao com no max 1 digito
+    if(max_len(num1->tamanho,num2->tamanho)==1){                      //Verifica se ambos os numeros estao com no max 1 digito
         if(resp->tamanho==1){
             resp->tamanho+=1;
             resp->digitos = realloc(resp->digitos,resp->tamanho*sizeof(int));
