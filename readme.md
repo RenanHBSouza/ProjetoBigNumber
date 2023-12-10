@@ -39,7 +39,7 @@ Renan H. B. Souza:
 Responsável, também, pelas operações de soma e subtração, realizou os ajustes iniciais na estrutura do bignumber. Sua contribuição na fase inicial do projeto foi fundamental para estabelecer bases sólidas e garantir a consistência das operações fundamentais. Desenvolveu a função de multiplicação para todos os casos necessários.
 
 Renan S. Ferreira:
-Foi responsável pela tarefa de ajustar o bignumber para acomodar os valores máximos da máquina em sistema windows e linux. Além disso, ele desenvolveu o código inicial para a operação de multiplicação.
+Foi responsável pela tarefa de ajustar o bignumber para acomodar os valores máximos da máquina em sistema windows e linux. Além disso, ele desenvolveu o código inicial para a operação de multiplicação. Ao finalizar os testes, organizou as interfaces necessárias.
 
 
 
