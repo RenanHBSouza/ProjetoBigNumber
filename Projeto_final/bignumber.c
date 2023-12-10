@@ -410,7 +410,7 @@ void pot10(BigNumber num, int k){
 
 void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     int cont;
-    size_t m;
+    int m;
 
     if(num1->sinal!=num2->sinal){       //Verifica o sinal da resposta
         resp->sinal='-';

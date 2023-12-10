@@ -8,7 +8,7 @@
 // Ponteiro de estrutura para representar um big number
 typedef struct n{
     int *digitos;
-    size_t tamanho;
+    int tamanho;
     char sinal;
 }* BigNumber;
 
@@ -53,7 +53,7 @@ BigNumber Construcao_bignumber(BigNumber num, char* valor) {    //Função que r
             exit(1);
         }
     }
-    //free(valor);        //Libera a memoria da string valor para garantir mais memoria
+    free(valor);        //Libera a memoria da string valor para garantir mais memoria
     return num;
 }
 
@@ -142,7 +142,8 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
             if(num2->digitos[num1->tamanho]>=10 && num1->tamanho!= num2->tamanho-1){
                 passa_1(num2,num1->tamanho);
             }
-            memcpy(num1->digitos, num2->digitos, num1->tamanho * sizeof(int));
+            memcpy(num1->digitos, num2->digitos, num2->tamanho * sizeof(int));
+            num1->tamanho = num2->tamanho;
         }
         else{       //Caso os tamanhos sejam iguais
             for(j=0;j<num2->tamanho;j++){           
@@ -277,7 +278,8 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                 num2->digitos[i] = aux;                     //num2 assume o valor do aux na posicao i
                 num2->sinal='-';
             }
-            memcpy(num1->digitos, num2->digitos, num1->tamanho * sizeof(int));
+            memcpy(num1->digitos, num2->digitos, num2->tamanho * sizeof(int));
+            num1->tamanho = num2->tamanho;
         }
         else{                  
             i = num1->tamanho-1;
@@ -420,7 +422,7 @@ void pot10(BigNumber num, int k){
 
 void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     int cont;
-    size_t m;
+    int m;
 
     if(num1->sinal!=num2->sinal){       //Verifica o sinal da resposta
         resp->sinal='-';
@@ -651,11 +653,12 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
 
 int main() {
     BigNumber numero1, numero2, resp;
-        char sinalCalc;
-        char* entrada;
-        char x[2] = {'0','\0'};
+    int teste=0;
+    char sinalCalc;
+    char* entrada;
+    char x[2] = {'0','\0'};
 
-    while(1){
+    while(teste!=1){
         entrada = pegar_numero();
         numero1 = Construcao_bignumber(numero1, entrada);
         entrada = pegar_numero();
@@ -679,6 +682,7 @@ int main() {
         }
         Destruir_bignumber(numero1);
         Destruir_bignumber(numero2);
+        teste +=1;
     }
     return 0;
 }

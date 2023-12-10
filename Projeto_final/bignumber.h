@@ -1,12 +1,9 @@
 #ifndef BIGNUMBER_H
 #define BIGNUMBER_H
 
-typedef unsigned long long size_t;
-
-// Ponteiro de estrutura para representar um big number
 typedef struct n{
     int *digitos;
-    size_t tamanho;
+    int tamanho;
     char sinal;
 }* BigNumber;
 
