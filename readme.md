@@ -26,7 +26,7 @@ Essas funções são declaradas no arquivo de cabeçalho 'BigNumber.h' e sao as 
 
 MELHORA DE EXECUCAO: 
 
-Para otimizar o tempo de execucao do codigo, empregamos o uso de ponteiros nas operacoes com a estrutura BigNumber. A abordagem consiste em passar apenas os endereços dos numeros envolvidos, evitando a criacao de copias desnecessarias. Alem disso, realizei modificacoes diretas em um dos números, eliminando a necessidade de criar uma nova instância de BigNumber. Essa prática foi aplicada em operações como soma e multiplicacao, melhorando significativamente a eficiência do codigo ao evitar alocacoes desnecessarias de memoria e reduzir o tempo de execucao.
+Para otimizar o tempo de execucao do codigo, empregamos o uso de ponteiros nas operacoes com a estrutura BigNumber. A abordagem consiste em passar apenas os endereços dos numeros envolvidos, evitando a criacao de copias desnecessarias. Alem disso, realizamos modificacoes diretas em um dos números, eliminando a necessidade de criar uma nova instância de BigNumber. Essa prática foi aplicada em operações como soma e multiplicacao, melhorando significativamente a eficiência do codigo ao evitar alocacoes desnecessarias de memoria e reduzir o tempo de execucao.
 
 DIVISAO DE TRABALHO:
 

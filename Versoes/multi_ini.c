@@ -516,8 +516,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         exit(1);
     }
     for(int i=0;i<m;i++){                       //Loop para a receber os valores da metade inicial de num1
-        a->digitos[i] = num1->digitos[m+i];    
+        a->digitos[i] = num1->digitos[m+i];
+        printf("%d ", a->digitos[i]);            //DEBUG
     }
+    printf("\n");
     a->sinal = num1->sinal;             //a recebe o sinal de num1
 
     BigNumber b = malloc(sizeof(struct n));      //Inicializa o BigNumber b
@@ -533,7 +535,9 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     for(int i=0;i<m;i++){                    //Loop para b receber os valores da metade final de num1
         b->digitos[i] = num1->digitos[i];
+        printf("%d ", b->digitos[i]);            //DEBUG
     }
+    printf("\n");
     b->sinal = num1->sinal;         //b recebe o sinal de num1
 
     BigNumber c = malloc(sizeof(struct n));         //Inicializa o BigNumber c
@@ -549,7 +553,9 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     for(int i=0;i<m;i++){                       //Loop para c receber os valores da metade inicial de num2
         c->digitos[i] = num2->digitos[m+i];
+        printf("%d ", c->digitos[i]);            //DEBUG
     }
+    printf("\n");
     c->sinal = num2->sinal;     //c recebe o sinal de num2
 
     BigNumber d = malloc(sizeof(struct n));     //Inicializa o BigNumber num2
@@ -565,7 +571,9 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     for(int i=0;i<m;i++){                   //Loop para d receber os valores da metade final de num2
         d->digitos[i] = num2->digitos[i];
+        printf("%d ", a->digitos[i]);            //DEBUG
     }
+    printf("\n");
     d->sinal = num2->sinal;         //d recebe o sinal de num2
 
                                                 // Calcula os produtos recursivamente usando algoritmo de Karatsuba                                           
@@ -635,6 +643,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         printf("%d ",ac->digitos[i]);
     }
     printf("\n");
+    for(int i=0;i<bd->tamanho;i++){         //debug
+        printf("%d ",bd->digitos[i]);
+    }
+    printf("\n");
     Subtracao_interna(abcd,ac);         //Chamada funcao de subtracao entre abcd e ac
     for(int i=0;i<abcd->tamanho;i++){
         printf("%d ",abcd->digitos[i]);
@@ -675,7 +687,6 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
        // exit(1);
   //  }
     memcpy(resp->digitos, ac->digitos, resp->tamanho * sizeof(int));        //Chamada funcao que copia os dados de ac em resp
-    Imprimir_bignumber(resp, resp->tamanho);                            //Chamada da impressao do resultado
 
     Destruir_bignumber(a);          // Libera a memoria de a, b, c, d, ac, bd e abcd
     Destruir_bignumber(b);
@@ -707,6 +718,7 @@ int main() {
         }
         else if(sinalCalc=='*'){
             Karatsuba_bignumber(numero1,numero2,resp);
+            Imprimir_bignumber(resp, resp->tamanho);                            //Chamada da impressao do resultado
         }
         else{
             printf("Valor inválido!");
