@@ -462,24 +462,24 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
             }           
         }
         num2->tamanho = num1->tamanho;          //Iguala o tamanho de num2 ao tamanho de num1
-        m = num1->tamanho/2;
+        m = num1->tamanho/2;                //Assume m como sendo um inteiro que representa metade do tamanho ne num1
     }
     else{
-        if(num2->tamanho%2!=0){
-            num2->tamanho +=1;
+        if(num2->tamanho%2!=0){         //Verifica se num2 é impar
+            num2->tamanho +=1;                              //Acrescenta um ao tamanho original para que o tamanho seja par
             num2->digitos = realloc(num2->digitos, num2->tamanho*sizeof(int));
             if(num2->digitos == NULL){
                 printf("Nao ha memoria suficiente!\n");
                 exit(1);
             }
-            num2->digitos[num2->tamanho-1] = 0;
+            num2->digitos[num2->tamanho-1] = 0;     //Acrescenta o valor 0 na ultima posicao
             num1->digitos = realloc(num1->digitos, num2->tamanho*sizeof(int));
             if(num1->digitos == NULL){
                 printf("Nao ha memoria suficiente!\n");
                 exit(1);
             }
-            for(int i=num1->tamanho;i<num2->tamanho;i++){
-                num1->digitos[i] = 0;
+            for(int i=num1->tamanho;i<num2->tamanho;i++){       
+                num1->digitos[i] = 0;                           //Preenche od digitos adicionados com 0
             }
         }
         else{
@@ -489,11 +489,11 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
                 exit(1);
             }
             for(int i=num1->tamanho;i<num2->tamanho;i++){
-                num1->digitos[i] = 0;
+                num1->digitos[i] = 0;                       //Adiciona 0 nos digitos adicionado em num1
             }           
         }
-        num1->tamanho = num2->tamanho;
-        m = num2->tamanho/2;
+        num1->tamanho = num2->tamanho;      //Iguala o tamanho de num1 e num2
+        m = num2->tamanho/2;                    //Assume m como inteiro com valor de metade do tamanho de num2
     }
     for(int i=0;i<num1->tamanho;i++){       //debug
         printf("%d ",num1->digitos[i]);
@@ -503,119 +503,117 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         printf("%d ",num2->digitos[i]);
     }
     printf("\n");
-                                                
-    BigNumber a = malloc(sizeof(struct n));             // Cria e inicializa os objetos BigNumber a, b, c, d para representar as partes divididas de num1 e num2
+                                                 //inicializa os BigNumber a
+    BigNumber a = malloc(sizeof(struct n));        
     if(a == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    a->tamanho = m;
+    a->tamanho = m;                                 //a recebe o tamanho de metade do num1 inicial
     a->digitos = calloc(a->tamanho, sizeof(int));
     if(a->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    for(int i=0;i<m;i++){
-        a->digitos[i] = num1->digitos[m+i];
+    for(int i=0;i<m;i++){                       //Loop para a receber os valores da metade inicial de num1
+        a->digitos[i] = num1->digitos[m+i];    
     }
-    a->sinal = num1->sinal;
+    a->sinal = num1->sinal;             //a recebe o sinal de num1
 
-    BigNumber b = malloc(sizeof(struct n));         // Repete o processo para os objetos b, c, d
+    BigNumber b = malloc(sizeof(struct n));      //Inicializa o BigNumber b
     if(b == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    b->tamanho = m;
+    b->tamanho = m;                                 //b recebe o tamanho de metade do num1 inicial  
     b->digitos = calloc(b->tamanho, sizeof(int));
     if(b->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    for(int i=0;i<m;i++){
+    for(int i=0;i<m;i++){                    //Loop para b receber os valores da metade final de num1
         b->digitos[i] = num1->digitos[i];
     }
-    b->sinal = num1->sinal;
+    b->sinal = num1->sinal;         //b recebe o sinal de num1
 
-    BigNumber c = malloc(sizeof(struct n));
+    BigNumber c = malloc(sizeof(struct n));         //Inicializa o BigNumber c
     if(c == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    c->tamanho = m;
+    c->tamanho = m;                                 //c recebe o tamanho de metade do num2 inicial
     c->digitos = calloc(c->tamanho, sizeof(int));
     if(c->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    for(int i=0;i<m;i++){
+    for(int i=0;i<m;i++){                       //Loop para c receber os valores da metade inicial de num2
         c->digitos[i] = num2->digitos[m+i];
     }
-    c->sinal = num2->sinal;
+    c->sinal = num2->sinal;     //c recebe o sinal de num2
 
-    BigNumber d = malloc(sizeof(struct n));
+    BigNumber d = malloc(sizeof(struct n));     //Inicializa o BigNumber num2
     if(d == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    d->tamanho = m;
+    d->tamanho = m;                                 //d recebe o tamanho de metade do num2 inicial
     d->digitos = calloc(d->tamanho, sizeof(int));
     if(d->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    for(int i=0;i<m;i++){
+    for(int i=0;i<m;i++){                   //Loop para d receber os valores da metade final de num2
         d->digitos[i] = num2->digitos[i];
     }
-    d->sinal = num2->sinal;
+    d->sinal = num2->sinal;         //d recebe o sinal de num2
 
-    // Calcula os produtos recursivamente usando algoritmo de Karatsuba
+                                                // Calcula os produtos recursivamente usando algoritmo de Karatsuba                                           
     BigNumber ac = malloc(sizeof(struct n));
     if(ac == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    ac->tamanho = a->tamanho+c->tamanho;
-    ac->sinal = '+';
+    ac->tamanho = a->tamanho+c->tamanho;        //ac recebe o tamanho maximo da multiplicacao de a e c
+    ac->sinal = '+';                            //ac recebe sinal positivo
     ac->digitos = calloc(ac->tamanho, sizeof(int));
     if(ac->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    Karatsuba_bignumber(a, c, ac);
+    Karatsuba_bignumber(a, c, ac);      //Chamada da funcao Karatsuba
 
     BigNumber bd = malloc(sizeof(struct n));
     if(bd == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    bd->tamanho = b->tamanho+d->tamanho;
-    bd->sinal = '+';
+    bd->tamanho = b->tamanho+d->tamanho;        //bd recebe o tamanho maximo da multiplicacao de b e d
+    bd->sinal = '+';                            //bd rece sinal positivo
     bd->digitos = calloc(bd->tamanho, sizeof(int));
     if(bd == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    Karatsuba_bignumber(b, d, bd);
+    Karatsuba_bignumber(b, d, bd);      //Chamada da funcao Karatsuba
 
-    // Calcula a + b e c + d
-    Soma_interna(a, b);
+    Soma_interna(a, b);     //Calcula-se a+b
 
-    Soma_interna(c, d);
+    Soma_interna(c, d);     //Calcula-se c+d
 
-    // Calcula (a + b) * (c + d)
-    BigNumber abcd = malloc(sizeof(struct n));
+    BigNumber abcd = malloc(sizeof(struct n));      //Inicializa o BigNumber abcd
     if(abcd == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    abcd->tamanho = a->tamanho+c->tamanho;
+    abcd->tamanho = a->tamanho+c->tamanho;          //abcd recebe o tamanho maximo da multiplicacao de(a+b) e (c+d)
     abcd->sinal = '+';
     abcd->digitos = calloc(abcd->tamanho,sizeof(int));
     if(abcd->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    Karatsuba_bignumber(a, c, abcd);
+    Karatsuba_bignumber(a, c, abcd);      // Calcula (a + b) * (c + d)
 
 
     // Calcula ac + bd - (a + b) * (c + d)
@@ -623,49 +621,48 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     //Subtracao_bignumber(ac, abcd);
     //Soma_bignumber(ac, bd);
 
-    // Salva os resultados para o objeto 'resp'
-    resp->tamanho = num1->tamanho+num2->tamanho;
+    resp->tamanho = num1->tamanho+num2->tamanho;        //O BigNumber resp recebe o tamanho do num1
     resp->digitos = realloc(resp->digitos, resp->tamanho * sizeof(int));
     if(resp->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
+    for(int i=0;i<abcd->tamanho;i++){       //debug
+        printf("%d ",abcd->digitos[i]);
+    }
+    printf("\n");
+    for(int i=0;i<ac->tamanho;i++){         //debug
+        printf("%d ",ac->digitos[i]);
+    }
+    printf("\n");
+    Subtracao_interna(abcd,ac);         //Chamada funcao de subtracao entre abcd e ac
     for(int i=0;i<abcd->tamanho;i++){
         printf("%d ",abcd->digitos[i]);
     }
     printf("\n");
-    for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);
-    }
-    printf("\n");
-    Subtracao_interna(abcd,ac);
+    Subtracao_interna(abcd,bd);           //Chamada da funcao de subtracao entre abcd e bd
     for(int i=0;i<abcd->tamanho;i++){
         printf("%d ",abcd->digitos[i]);
     }
     printf("\n");
-    Subtracao_interna(abcd,bd);
+    pot10(abcd,m);                          //Chamada da funcao potencia com 10 elevado a m para abcd
     for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);
+        printf("%d ",abcd->digitos[i]);    //debug
     }
     printf("\n");
-    pot10(abcd,m);
-    for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);
-    }
-    printf("\n");
-    pot10(ac,2*m);
+    pot10(ac,2*m);                      //Chamada da funcao potencia com 10 elevado a 2*m para ac
     for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);
+        printf("%d ",ac->digitos[i]);       //debug
     }
     printf("\n");
-    Soma_interna(ac,abcd);
+    Soma_interna(ac,abcd);         //Chamada da funcao soma para ac e abcd
     for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);
+        printf("%d ",ac->digitos[i]);       //debug
     }
     printf("\n");
-    Soma_interna(ac,bd);
+    Soma_interna(ac,bd);            //Chamada da funcao soma para ac e bd
     for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);
+        printf("%d ",ac->digitos[i]);       //debug
     }
     printf("\n");
 
@@ -677,11 +674,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
       //  printf("Nao ha memoria suficiente!\n");
        // exit(1);
   //  }
-    memcpy(resp->digitos, ac->digitos, resp->tamanho * sizeof(int));
-    Imprimir_bignumber(resp, resp->tamanho);
+    memcpy(resp->digitos, ac->digitos, resp->tamanho * sizeof(int));        //Chamada funcao que copia os dados de ac em resp
+    Imprimir_bignumber(resp, resp->tamanho);                            //Chamada da impressao do resultado
 
-    // Libera a memoria
-    Destruir_bignumber(a);
+    Destruir_bignumber(a);          // Libera a memoria de a, b, c, d, ac, bd e abcd
     Destruir_bignumber(b);
     Destruir_bignumber(c);
     Destruir_bignumber(d);
