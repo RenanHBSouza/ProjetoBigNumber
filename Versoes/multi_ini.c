@@ -233,8 +233,8 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
         num2->sinal='-';        //Altera o sinal de num2 e envia para soma
         Soma_bignumber(num1,num2);
     }
-    else if(num1->sinal=='-' && num2->sinal=='-'){
-        num2->sinal='+';
+    else if(num1->sinal=='-' && num2->sinal=='-'){      //Se num1<0 e num2<0, -num1 - -num2 --> -num1 + num2
+        num2->sinal='+';                               //Altera o sinal de num2 e envia para soma
         Soma_bignumber(num1,num2);
     }
     else if(num1->sinal=='+' && num2->sinal=='+'){       //caso num1>0 e num2>0, faz o calculo de subtração comum
@@ -255,21 +255,21 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
         }
         else if(num2->tamanho>num1->tamanho){       //Caso num2 seja maior faz a mesma logica, porém altera o sinal devido a esse resultado ser negativo
             for(i=0;i<num1->tamanho;i++){
-                aux = num2->digitos[i]-num1->digitos[i];
-                if(aux<0 && num2->digitos[i+1]!=0){
-                    num2->digitos[i+1]-=1;
-                    num2->digitos[i]+=10;
+                aux = num2->digitos[i]-num1->digitos[i];        //aux recebe a subtracao de num2 e num1
+                if(aux<0 && num2->digitos[i+1]!=0){         //Verifica se ele eh menor que zero e o digito a direita eh diferente de 0
+                    num2->digitos[i+1]-=1;              //Subtrai 1 do digito vizinho
+                    num2->digitos[i]+=10;               //Soma 10 no digito atual
                 }
-                else if(aux<0 && num2->digitos[i+1]==0){
-                    empresta(num2,i+1);
+                else if(aux<0 && num2->digitos[i+1]==0){        //Verifica se o aux eh negativo e o digito seguinte eh zero
+                    empresta(num2,i+1);                     //Chamada da funcao empresta
                 }
-                aux = num2->digitos[i]-num1->digitos[i];
-                num2->digitos[i] = aux;
+                aux = num2->digitos[i]-num1->digitos[i];        //aux eh recalculado
+                num2->digitos[i] = aux;                     //num2 assume o valor do aux na posicao i
                 num2->sinal='-';
             }
             Imprimir_bignumber(num2,num2->tamanho);
         }
-        else{
+        else{                  
             i = num1->tamanho-1;
             while(i>=0){
                 if(num1->digitos[i]>num2->digitos[i]){
@@ -345,27 +345,27 @@ void Subtracao_interna(BigNumber num1, BigNumber num2){
                 num1->digitos[j] = aux;       //Após os adendos passa o valor de aux para o digito que esta sendo calculado
             }
         }
-        else if(num2->digitos[i]>num1->digitos[i]){     //Se o segundo digito for maior que o primeiro
+        else if(num2->digitos[i]>num1->digitos[i]){      //Verifica se o segundo digito for maior que o primeiro
             i=-1;
             for(int j=0;j<num1->tamanho;j++){
-                aux = num2->digitos[j]-num1->digitos[j];
-                if(aux<0 && num2->digitos[j+1]!=0){
-                    num2->digitos[j+1]-=1;
+                aux = num2->digitos[j]-num1->digitos[j];        //O aux realiza a subtracao
+                if(aux<0 && num2->digitos[j+1]!=0){         //Verifica se o aux eh negativo e se nao estamos no primeiro digito do num2
+                    num2->digitos[j+1]-=1;                  //Em caso positivo, subtrai 1 do algorismo seguinte e acrescenta 10 no atual
                     num2->digitos[j]+=10;
                 }
-                else if(aux<0 && num2->digitos[j+1]==0){
+                else if(aux<0 && num2->digitos[j+1]==0){        //Se aux der negativo e a posicao atual for a inicial, chama-se a funcao empresta
                     empresta(num2,j+1);
                 }
-                aux = num2->digitos[j]-num1->digitos[j];
-                num1->digitos[j] = aux;
-                num1->sinal='-';
+                aux = num2->digitos[j]-num1->digitos[j];        //Recalcula o aux apos mudancas
+                num1->digitos[j] = aux;                     //Com aux>0, ele é inserido no num1
+                num1->sinal='-';                           //num1 assume sinal negativo
             }
         }
         if(i==0){
             i = -1;
-            num1->digitos[0] = 0;
+            num1->digitos[0] = 0;       // //Se o tamanho de num1 for 0, sera atribuido ao seu unico digito um zero
         }
-        else{
+        else{               // //Se num1 e num2 forem iguais, sera lido numero por numero de num1 e num2 ate encontrar o maior
             i-=1;
         }
     }
@@ -385,13 +385,13 @@ void pot10(BigNumber num, int k){
         exit(1);
     }
     int i;
-    for(i=num->tamanho-1;i>=0;i--){
+    for(i=num->tamanho-1;i>=0;i--){             //Loop para deslocar os elementos do vetor para a direita
         num->digitos[(i+k)] = num->digitos[i];
-        printf("indice: %d, num: %d\n",(i+k),num->digitos[i+k]);
-        num->digitos[i] = 0;
-        printf("indice: %d, num: %d\n",i,num->digitos[i]);
+        printf("indice: %d, num: %d\n",(i+k),num->digitos[i+k]);        //debug
+        num->digitos[i] = 0;                                        //Adiciona zero nos digitos iniciais que sobrarem
+        printf("indice: %d, num: %d\n",i,num->digitos[i]);      //debug
     }
-    num->tamanho += k;
+    num->tamanho += k;  
     return;
 }
 
@@ -558,7 +558,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     printf("\n");
     c->sinal = num2->sinal;     //c recebe o sinal de num2
 
-    BigNumber d = malloc(sizeof(struct n));     //Inicializa o BigNumber num2
+    BigNumber d = malloc(sizeof(struct n));     //Inicializa o BigNumber d
     if(d == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
@@ -615,13 +615,13 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         exit(1);
     }
     abcd->tamanho = a->tamanho+c->tamanho;          //abcd recebe o tamanho maximo da multiplicacao de(a+b) e (c+d)
-    abcd->sinal = '+';
+    abcd->sinal = '+';                              //abcd recebe sinal positivo
     abcd->digitos = calloc(abcd->tamanho,sizeof(int));
     if(abcd->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    Karatsuba_bignumber(a, c, abcd);      // Calcula (a + b) * (c + d)
+    Karatsuba_bignumber(a, c, abcd);      //Chamada da funcao Karatsuba que calcula (a + b) * (c + d)
 
 
     // Calcula ac + bd - (a + b) * (c + d)
@@ -649,12 +649,12 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     printf("\n");
     Subtracao_interna(abcd,ac);         //Chamada funcao de subtracao entre abcd e ac
     for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);
+        printf("%d ",abcd->digitos[i]);     //debug
     }
     printf("\n");
     Subtracao_interna(abcd,bd);           //Chamada da funcao de subtracao entre abcd e bd
     for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);
+        printf("%d ",abcd->digitos[i]);     //debug
     }
     printf("\n");
     pot10(abcd,m);                          //Chamada da funcao potencia com 10 elevado a m para abcd
