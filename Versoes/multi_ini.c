@@ -127,7 +127,6 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
             if(num1->digitos[num2->tamanho]>=10 && num2->tamanho!= num1->tamanho-1){
                 passa_1(num1,num2->tamanho);
             }
-            Imprimir_bignumber(num1, num1->tamanho);        //Chama a função de impressão
         } 
         else if(num2->tamanho>num1->tamanho){     //Mesma logica para casa o outro numero seja maior
             for(j=0;j<num1->tamanho;j++){           
@@ -143,7 +142,7 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
             if(num2->digitos[num1->tamanho]>=10 && num1->tamanho!= num2->tamanho-1){
                 passa_1(num2,num1->tamanho);
             }
-            Imprimir_bignumber(num2, num2->tamanho);
+            memcpy(num1->digitos, num2->digitos, num1->tamanho * sizeof(int));
         }
         else{       //Caso os tamanhos sejam iguais
             for(j=0;j<num2->tamanho;j++){           
@@ -167,9 +166,7 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
                 else{
                     num1->digitos[j] = aux;
                 }
-            }
-            Imprimir_bignumber(num1, num1->tamanho);
-            
+            }            
         }
     }
     else if(num1->sinal=='+' && num2->sinal=='-'){      //se num1>0 e num2<0, num1 + -num2 --> num1 - num2
@@ -184,10 +181,24 @@ void Soma_bignumber(BigNumber num1, BigNumber num2){
 
 void Soma_interna(BigNumber num1, BigNumber num2){
     int i,j,aux;
+    if(num2->tamanho>num1->tamanho){        //Passos para completar de 0's o numero de menor tamanho
+        num1->digitos = realloc(num1->digitos,num2->tamanho*sizeof(int));
+        for(i=num1->tamanho;i<num2->tamanho;i++){
+            num1->digitos[i]=0;
+        }
+        num1->tamanho = num2->tamanho;
+    }
+    else{
+        num2->digitos = realloc(num2->digitos,num1->tamanho*sizeof(int));
+        for(i=num2->tamanho;i<num1->tamanho;i++){
+            num2->digitos[i]=0;
+        }
+        num2->tamanho = num1->tamanho;    
+    }
     for(j=0;j<num2->tamanho;j++){        //Loop para percorrer o numero
         aux=num1->digitos[j]+num2->digitos[j]; // Soma os digitos correspondentes de num1 e num2 alem do valor acumulado do resto, se houver
            if(aux>=10){        //Se a soma for maior que 9, caso não seja o ultimo digitos dos vetores subtrai 10 do atual e soma 1 no proximo digito
-               if(j!=num2->tamanho-1){
+               if(j!=num1->tamanho-1){
                    num1->digitos[j] = aux-10; //Atualiza o digito atual num1
                    num1->digitos[j+1] += 1;
                 }
@@ -202,7 +213,7 @@ void Soma_interna(BigNumber num1, BigNumber num2){
                     num1->digitos[j+1] = 1;
                 }
             }
-            else{
+            else{       //Caso aux não passe de 10 adiciona no indice atual
                 num1->digitos[j] = aux;
             }
     }          
@@ -251,7 +262,6 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                 aux = num1->digitos[i]-num2->digitos[i];        
                 num1->digitos[i] = aux;       //Após os adendos passa o valor de aux para o digito que esta sendo calculado
             }
-            Imprimir_bignumber(num1,num1->tamanho);         //Chama a função de impressão
         }
         else if(num2->tamanho>num1->tamanho){       //Caso num2 seja maior faz a mesma logica, porém altera o sinal devido a esse resultado ser negativo
             for(i=0;i<num1->tamanho;i++){
@@ -267,7 +277,7 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                 num2->digitos[i] = aux;                     //num2 assume o valor do aux na posicao i
                 num2->sinal='-';
             }
-            Imprimir_bignumber(num2,num2->tamanho);
+            memcpy(num1->digitos, num2->digitos, num1->tamanho * sizeof(int));
         }
         else{                  
             i = num1->tamanho-1;
@@ -286,7 +296,6 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                         aux = num1->digitos[j]-num2->digitos[j];        
                         num1->digitos[j] = aux;       //Após os adendos passa o valor de aux para o digito que esta sendo calculado
                     }
-                Imprimir_bignumber(num1,num1->tamanho);         //Chama a função de impressão
                 }
                 else if(num2->digitos[i]>num1->digitos[i]){
                     i=-1;
@@ -303,7 +312,6 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
                         num1->digitos[j] = aux;
                         num1->sinal='-';
                     }
-                    Imprimir_bignumber(num1,num1->tamanho);
                 }
                 else if(i==0){
                     i = -1;
@@ -327,10 +335,25 @@ void Subtracao_bignumber(BigNumber num1, BigNumber num2){
 
 void Subtracao_interna(BigNumber num1, BigNumber num2){
     int i, aux;
-    i = num1->tamanho-1;
+    if(num2->tamanho>num1->tamanho){        //Passos para completar de 0's o numero de menor tamanho
+        num1->digitos = realloc(num1->digitos,num2->tamanho*sizeof(int));
+        for(i=num1->tamanho;i<num2->tamanho;i++){
+            num1->digitos[i]=0;
+        }
+        num1->tamanho = num2->tamanho;
+    }
+    else{
+        num2->digitos = realloc(num2->digitos,num1->tamanho*sizeof(int));
+        for(i=num2->tamanho;i<num1->tamanho;i++){
+            num2->digitos[i]=0;
+        }
+        num2->tamanho = num1->tamanho;    
+    }
+
+    i = num1->tamanho-1;        //variavel utilizada para percorrer os digitos de tras para frente
 
     while(i>=0){
-        if(num1->digitos[i]>num2->digitos[i]){
+        if(num1->digitos[i]>num2->digitos[i]){      //Procura qual dos dois numeros é maior
             i = -1;
             for(int j=0;j<num2->tamanho;j++){       //Faz as subtrações digito a digito enquanto num2 tem caractere
                 aux = num1->digitos[j]-num2->digitos[j];
@@ -363,9 +386,11 @@ void Subtracao_interna(BigNumber num1, BigNumber num2){
         }
         if(i==0){
             i = -1;
-            num1->digitos[0] = 0;       // //Se o tamanho de num1 for 0, sera atribuido ao seu unico digito um zero
+            for(int j=0;j<num1->tamanho;j++){
+            num1->digitos[j] = 0;       // //Se nenhum dos numeros for diferente, sera atribuido ao seu unico digito um zero
+            }
         }
-        else{               // //Se num1 e num2 forem iguais, sera lido numero por numero de num1 e num2 ate encontrar o maior
+        else{
             i-=1;
         }
     }
@@ -387,50 +412,32 @@ void pot10(BigNumber num, int k){
     int i;
     for(i=num->tamanho-1;i>=0;i--){             //Loop para deslocar os elementos do vetor para a direita
         num->digitos[(i+k)] = num->digitos[i];
-        printf("indice: %d, num: %d\n",(i+k),num->digitos[i+k]);        //debug
         num->digitos[i] = 0;                                        //Adiciona zero nos digitos iniciais que sobrarem
-        printf("indice: %d, num: %d\n",i,num->digitos[i]);      //debug
     }
     num->tamanho += k;  
     return;
 }
 
 void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
+    int cont;
     size_t m;
-    // Se um dos numeros for zero, o resultado é zero
-   /*
-    if (num1->tamanho == 1 && num1->digitos[0] == 0) {
-        resp->tamanho = 1;
-        resp->sinal = '+';
-        resp->digitos = realloc(resp->digitos, sizeof(int));
-        if(resp->digitos == NULL){
-            printf("Nao ha memoria suficiente!\n");
-            exit(1);
-        }
-        resp->digitos[0] = 0;
-        return;
-    }
-    if (num2->tamanho == 1 && num2->digitos[0] == 0) {
-        resp->tamanho = 1;
-        resp->sinal = '+';
-        resp->digitos = realloc(resp->digitos, sizeof(int));
-        if(resp->digitos == NULL){
-            printf("Nao ha memoria suficiente!\n");
-            exit(1);
-        }
-        resp->digitos[0] = 0;
-        return;
-    }*/
-    if(max(num1->tamanho,num2->tamanho)==1){                      //Verifica se ambos os numeros estao com no max 1 digito
-        resp->digitos[0] = (num1->digitos[0]*num2->digitos[0])%10;
-        resp->digitos[1] = (num1->digitos[0]*num2->digitos[0])/10;
-        return;
-    }
 
-    // Verifica sinal dos numeros
-    //Imprimir_bignumber(num1,num1->tamanho);
-    //Imprimir_bignumber(num2,num2->tamanho);
-    resp->sinal = (num1->sinal == num2->sinal) ? '+' : '-';  
+    if(num1->sinal!=num2->sinal){       //Verifica o sinal da resposta
+        resp->sinal='-';
+    }
+    else{
+        resp->sinal='+';
+    } 
+
+    if(max(num1->tamanho,num2->tamanho)==1){                      //Verifica se ambos os numeros estao com no max 1 digito
+        if(resp->tamanho==1){
+            resp->tamanho+=1;
+            resp->digitos = realloc(resp->digitos,resp->tamanho*sizeof(int));
+        }
+        resp->digitos[0] = (num1->digitos[0]*num2->digitos[0])%10;      //Calcula a multiplicação deixando apenas o digito menos sig.
+        resp->digitos[1] = (num1->digitos[0]*num2->digitos[0])/10;      //Coloca o digito mais sig. se o tiver
+        return;
+    }
 
     // Determina a metade do BigN e coloca 0 para deixar numeros pares de mesmo tamanho
     if (num1->tamanho > num2->tamanho){
@@ -468,7 +475,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         if(num2->tamanho%2!=0){         //Verifica se num2 é impar
             num2->tamanho +=1;                              //Acrescenta um ao tamanho original para que o tamanho seja par
             num2->digitos = realloc(num2->digitos, num2->tamanho*sizeof(int));
-            if(num2->digitos == NULL){
+             if(num2->digitos == NULL){
                 printf("Nao ha memoria suficiente!\n");
                 exit(1);
             }
@@ -495,16 +502,8 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         num1->tamanho = num2->tamanho;      //Iguala o tamanho de num1 e num2
         m = num2->tamanho/2;                    //Assume m como inteiro com valor de metade do tamanho de num2
     }
-    for(int i=0;i<num1->tamanho;i++){       //debug
-        printf("%d ",num1->digitos[i]);
-    }
-    printf("\n");
-    for(int i=0;i<num2->tamanho;i++){           //debug
-        printf("%d ",num2->digitos[i]);
-    }
-    printf("\n");
-                                                 //inicializa os BigNumber a
-    BigNumber a = malloc(sizeof(struct n));        
+                                                 
+    BigNumber a = malloc(sizeof(struct n)); //inicializa os BigNumber a       
     if(a == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
@@ -517,9 +516,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     for(int i=0;i<m;i++){                       //Loop para a receber os valores da metade inicial de num1
         a->digitos[i] = num1->digitos[m+i];
-        printf("%d ", a->digitos[i]);            //DEBUG
     }
-    printf("\n");
     a->sinal = num1->sinal;             //a recebe o sinal de num1
 
     BigNumber b = malloc(sizeof(struct n));      //Inicializa o BigNumber b
@@ -535,9 +532,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     for(int i=0;i<m;i++){                    //Loop para b receber os valores da metade final de num1
         b->digitos[i] = num1->digitos[i];
-        printf("%d ", b->digitos[i]);            //DEBUG
     }
-    printf("\n");
     b->sinal = num1->sinal;         //b recebe o sinal de num1
 
     BigNumber c = malloc(sizeof(struct n));         //Inicializa o BigNumber c
@@ -553,9 +548,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     for(int i=0;i<m;i++){                       //Loop para c receber os valores da metade inicial de num2
         c->digitos[i] = num2->digitos[m+i];
-        printf("%d ", c->digitos[i]);            //DEBUG
     }
-    printf("\n");
     c->sinal = num2->sinal;     //c recebe o sinal de num2
 
     BigNumber d = malloc(sizeof(struct n));     //Inicializa o BigNumber d
@@ -569,15 +562,13 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
+
     for(int i=0;i<m;i++){                   //Loop para d receber os valores da metade final de num2
         d->digitos[i] = num2->digitos[i];
-        printf("%d ", a->digitos[i]);            //DEBUG
     }
-    printf("\n");
     d->sinal = num2->sinal;         //d recebe o sinal de num2
-
-                                                // Calcula os produtos recursivamente usando algoritmo de Karatsuba                                           
-    BigNumber ac = malloc(sizeof(struct n));
+                                                                                        
+    BigNumber ac = malloc(sizeof(struct n));    // Calcula o produto ac recursivamente usando algoritmo de Karatsuba
     if(ac == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
@@ -591,7 +582,7 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     }
     Karatsuba_bignumber(a, c, ac);      //Chamada da funcao Karatsuba
 
-    BigNumber bd = malloc(sizeof(struct n));
+    BigNumber bd = malloc(sizeof(struct n));     // Calcula o produto bd recursivamente usando algoritmo de Karatsuba
     if(bd == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
@@ -624,69 +615,30 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
     Karatsuba_bignumber(a, c, abcd);      //Chamada da funcao Karatsuba que calcula (a + b) * (c + d)
 
 
-    // Calcula ac + bd - (a + b) * (c + d)
-    //Subtracao_bignumber(ac, bd);
-    //Subtracao_bignumber(ac, abcd);
-    //Soma_bignumber(ac, bd);
-
     resp->tamanho = num1->tamanho+num2->tamanho;        //O BigNumber resp recebe o tamanho do num1
     resp->digitos = realloc(resp->digitos, resp->tamanho * sizeof(int));
     if(resp->digitos == NULL){
         printf("Nao ha memoria suficiente!\n");
         exit(1);
     }
-    for(int i=0;i<abcd->tamanho;i++){       //debug
-        printf("%d ",abcd->digitos[i]);
-    }
-    printf("\n");
-    for(int i=0;i<ac->tamanho;i++){         //debug
-        printf("%d ",ac->digitos[i]);
-    }
-    printf("\n");
-    for(int i=0;i<bd->tamanho;i++){         //debug
-        printf("%d ",bd->digitos[i]);
-    }
-    printf("\n");
+    //Calculo de ac*10^(2*m)+(abcd-ac-bd)*10^m+bd
     Subtracao_interna(abcd,ac);         //Chamada funcao de subtracao entre abcd e ac
-    for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);     //debug
-    }
-    printf("\n");
     Subtracao_interna(abcd,bd);           //Chamada da funcao de subtracao entre abcd e bd
-    for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);     //debug
-    }
-    printf("\n");
     pot10(abcd,m);                          //Chamada da funcao potencia com 10 elevado a m para abcd
-    for(int i=0;i<abcd->tamanho;i++){
-        printf("%d ",abcd->digitos[i]);    //debug
-    }
-    printf("\n");
     pot10(ac,2*m);                      //Chamada da funcao potencia com 10 elevado a 2*m para ac
-    for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);       //debug
-    }
-    printf("\n");
     Soma_interna(ac,abcd);         //Chamada da funcao soma para ac e abcd
-    for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);       //debug
-    }
-    printf("\n");
     Soma_interna(ac,bd);            //Chamada da funcao soma para ac e bd
-    for(int i=0;i<ac->tamanho;i++){
-        printf("%d ",ac->digitos[i]);       //debug
-    }
-    printf("\n");
 
-    // Copia o resultado para o num1
-    //num1->tamanho = resp->tamanho;
-    //num1->sinal = resp->sinal;
-    //num1->digitos = realloc(num1->digitos, num1->tamanho * sizeof(int));
-    //if(num1->digitos == NULL){
-      //  printf("Nao ha memoria suficiente!\n");
-       // exit(1);
-  //  }
     memcpy(resp->digitos, ac->digitos, resp->tamanho * sizeof(int));        //Chamada funcao que copia os dados de ac em resp
+    cont=0;
+    for(int i=0;i<resp->tamanho;i++){       //for para percorrer o numero e verificar se ele é 0
+        if(resp->digitos[i]==0){
+            cont+=1;
+        }
+    }
+    if(cont==resp->tamanho){    //Caso seja garante o sinal positivo
+        resp->sinal='+';
+    }
 
     Destruir_bignumber(a);          // Libera a memoria de a, b, c, d, ac, bd e abcd
     Destruir_bignumber(b);
@@ -699,10 +651,10 @@ void Karatsuba_bignumber(BigNumber num1, BigNumber num2, BigNumber resp) {
 
 int main() {
     BigNumber numero1, numero2, resp;
-    int i=30;
-    char sinalCalc;
-    char* entrada;
-    char x[1] = {'0'};
+        char sinalCalc;
+        char* entrada;
+        char x[2] = {'0','\0'};
+
     while(1){
         entrada = pegar_numero();
         numero1 = Construcao_bignumber(numero1, entrada);
@@ -712,20 +664,21 @@ int main() {
         scanf("%c", &sinalCalc);
         if(sinalCalc=='+'){
             Soma_bignumber(numero1,numero2);
+            Imprimir_bignumber(numero1, numero1->tamanho);      //  Chamada da impressao do resultado
         }
         else if(sinalCalc=='-'){
             Subtracao_bignumber(numero1,numero2);
+            Imprimir_bignumber(numero1, numero1->tamanho);      //Chamada da impressao do resultado
         }
         else if(sinalCalc=='*'){
             Karatsuba_bignumber(numero1,numero2,resp);
-            Imprimir_bignumber(resp, resp->tamanho);                            //Chamada da impressao do resultado
+            Imprimir_bignumber(resp, resp->tamanho);      //Chamada da impressao do resultado
         }
         else{
             printf("Valor inválido!");
         }
         Destruir_bignumber(numero1);
         Destruir_bignumber(numero2);
-        i -= 1;
     }
     return 0;
 }
